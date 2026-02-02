@@ -1,0 +1,12 @@
+*.tmp
+*.log
+snippets/
+transient/
+tree-sitter/
+url/
+.local/
+history
+eln-cache/
+elpa/
+*.*~
+auto-save-list/
