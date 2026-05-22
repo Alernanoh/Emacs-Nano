@@ -12,17 +12,16 @@
   - [[#use-package][Use Package]]
   - [[#evil-mode][Evil Mode]]
   - [[#general-keybindings][General Keybindings]]
-  - [[#unbind-example][Unbind Example]]
-  - [[#evil-on-org-mode][Evil on Org mode]]
   - [[#good-defaults][Good Defaults]]
 - [[#appearance][Appearance]]
-  - [[#set-theme][Set Theme]]
+  - [[#set-catppuccion-theme][Set Catppuccion Theme]]
   - [[#transparency][Transparency]]
   - [[#fonts][Fonts]]
   - [[#modeline][Modeline]]
 - [[#development][Development]]
   - [[#projectile][Projectile]]
   - [[#eglot][Eglot]]
+  - [[#mason][Mason]]
   - [[#sideline-flymake][Sideline-flymake]]
   - [[#emmet-mode][Emmet mode]]
   - [[#yasnippet][Yasnippet]]
@@ -34,6 +33,7 @@
   - [[#sourcing-the-files][Sourcing the files]]
   - [[#using-the-file][Using the file]]
 - [[#other-packages][Other Packages]]
+  - [[#pdf-tools][PDF tools]]
   - [[#nerd-icons][Nerd Icons]]
   - [[#git][Git]]
   - [[#corfu][Corfu]]
@@ -57,15 +57,7 @@ Make startup faster by reducing the frequency of garbage collection. This will b
 #+end_src
 
 ** Auto-tangle Configuration file
-Auto-Tangle Org configuration file for better startup times.
-If you want to use this don't forget to add this to the top of the org document (#+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes)
-
-*Remember*, if this code can't be loaded (errors before this code), the init.el file won't update on change!
 To fix this, you need to find this file (C-x C-f), fix the error and press C-c C-v t to tangle it manually.
-
-This snippet adds a hook to org-mode buffers so that start/org-babel-tangle-config gets executed each time such a buffer gets saved.
-This function checks to see if the file being saved is the Emacs.org file you’re looking at right now, and if so,
-automatically exports the configuration here to the associated output files.
 #+begin_src emacs-lisp
     (defun start/org-babel-tangle-config ()
       ;; "Automatically tangle our Emacs.org config file when we save it. Credit to Emacs From Scratch for this one!"
@@ -79,16 +71,6 @@ automatically exports the configuration here to the associated output files.
 #+end_src
 
 ** Use Package
-We use the default package manager package.el with use-package. Alternative package managers (straight.el, elpaca, etc.) are useful if you want to
-install packages from git repositories, if you want a specific, not very popular package that is not available on elpa or melpa,
-or you want UI (elpaca) and other things.
-
-If you are interested in these other package managers, check out their git repositories or search for more package managers.
-In my experience Package.el is not slow and gets the job done.
-
-To update/upgrade packages, use the package-upgrade-all command.
-Check out the use-package [[https://www.gnu.org/software/emacs/manual/use-package.html][documentation]] to see how to use it.
-With Emacs 29 use-package is now built-in.
 #+begin_src emacs-lisp
     (require 'use-package-ensure) ;; Load use-package-always-ensure
     (setq use-package-always-ensure t) ;; Always ensures that a package is installed
@@ -100,20 +82,12 @@ With Emacs 29 use-package is now built-in.
 
 
 ** Evil Mode
-An extensible vi/vim layer for Emacs. Because…let’s face it. The Vim keybindings are just plain better.
-Notes:
-- You can toggle evil mode with C-z.
-- To paste without copy (yank) select the text and use P (shift-p).
-
-If you don't want to use evil-mode don't forget to remove:
-- Messages buffer fix in Good default section (:ghook)
-- And also change general.el keybindings and setup (general-evil-setup, :states, etc.)
 #+begin_src emacs-lisp
     (use-package evil
       :init ;; Execute code Before a package is loaded
       (evil-mode)
-      :config ;; Execute code After a package is loaded
-      (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
+      :config 
+      (evil-set-initial-state 'vterm-mode 'insert) 
       :custom ;; Customization of package custom variables
       (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
       (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
@@ -132,17 +106,12 @@ If you don't want to use evil-mode don't forget to remove:
     (use-package evil-collection
       :after evil
       :config
-      ;; Setting where to use evil-collection
-      (setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult))
       (evil-collection-init))
 
 
 #+end_src
 
 ** General Keybindings
-A keybinding framework to set keybindings easily.
-The Leader key is what you will press when you want to access your keybindings (SPC + . Find file).
-To search and replace, use query-replace-regexp to replace one by one C-M-% (SPC to replace n to skip).
 #+begin_src emacs-lisp
 
         (use-package general
@@ -211,7 +180,7 @@ To search and replace, use query-replace-regexp to replace one by one C-M-% (SPC
 
           (start/leader-keys
             "s" '(:ignore t :wk "Show")
-            "s e" '(eat :wk "Eat terminal"))
+            "s e" '(vterm :wk "Vterm"))
 
 
           ;;Org mode bindings
@@ -252,69 +221,6 @@ To search and replace, use query-replace-regexp to replace one by one C-M-% (SPC
             "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
             "t l" '(display-line-numbers-mode :wk "Toggle line numbers")))
 
-
-#+end_src
-
-#+RESULTS:
-: t
-
-
-** Unbind Example
-#+begin_src emacs-lisp
-
-    ;; (general-unbind
-    ;;   :states 'insert
-    ;;   :keymaps 'org-mode-map 
-    ;;   "<backtab>"
-    ;;   "S-TAB"
-    ;; )
-
-    (general-define-key
-    :states 'insert
-    :keymaps 'org-mode-map
-    "S-TAB" #'ignore
-    "<backtab>" #'ignore
-    "S-<tab>" #'ignore
-    )
-
-
-
-#+end_src
-
-#+RESULTS:
-
-** Evil on Org mode 
-#+begin_src emacs-lisp
-
-    (general-define-key
-     :states 'normal
-     :keymaps 'org-mode-map
-     "TAB" #'org-cycle
-     "RET" #'org-open-at-point
-     "-" #'org-cycle-list-bullet
-
-    ;; TODO
-     "t"   #'org-todo
-     
-     ;;Checkboxes
-     "SPC c" #'org-toggle-checkbox
-
-     ;;Move list items
-     "gj" #'org-move-item-down
-     "gk" #'org-move-item-up
-
-     ;; Promote/Demote
-     ">"   #'org-metaright
-     "<"   #'org-metaleft
-
-     ;; Move subtree
-     "J"   #'org-move-subtree-down
-     "K"   #'org-move-subtree-up
-
-     ;;Tables
-     "|" #'org-table-create-or-convert-from-region
-     "gR" #'org-table-recalculate
-    )
 
 #+end_src
 
@@ -368,10 +274,7 @@ To search and replace, use query-replace-regexp to replace one by one C-M-% (SPC
 #+end_src
 
 * Appearance
-** Set Theme
-Set gruvbox theme, if you want some themes try out doom-themes.
-Use consult-theme to easily try out themes (*Epilepsy* Warning).
-
+** Set Catppuccion Theme 
 #+begin_src emacs-lisp
 
     (use-package catppuccin-theme
@@ -395,10 +298,6 @@ Use consult-theme to easily try out themes (*Epilepsy* Warning).
                         :font "mononoki nerd font" ;; Set your favorite type of font or download JetBrains Mono
                         :height 120
                         :weight 'medium)
-    ;; This sets the default font on all graphical frames created after restarting Emacs.
-    ;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-    ;; are not right unless I also add this method of setting the default font.
-
     ;;(add-to-list 'default-frame-alist '(font . "JetBrains Mono")) ;; Set your favorite font
     (setq-default line-spacing 0.12)
 #+end_src
@@ -446,13 +345,7 @@ Project interaction library for Emacs.
     (use-package eglot
       :ensure nil 
       :hook 
-      ( prog-mode . eglot-ensure)
-      (html-mode . eglot-ensure)
-      (css-mode . eglot-ensure)
-      (web-mode . eglot-ensure)
-      (js-ts-mode . eglot-ensure)
-      (typescript-ts-mode . eglot-ensure)
-      (tsx-ts-mode . eglot-ensure)
+      (prog-mode . eglot-ensure)
       :custom
       (eglot-events-buffer-size 0) ;; No event buffers (LSP server logs)
       (eglot-autoshutdown t);; Shutdown unused servers.
@@ -460,20 +353,21 @@ Project interaction library for Emacs.
       (eglot-sync-connect nil)
       (eglot-connect-timeout nil)
       (eglot-send-changes-idle-time 0.5)
-      ;; Manual lsp servers
-      :config
-      (add-to-list 'eglot-server-programs
-      	       '(web-mode . ("~/.local/share/pnpm/typescript-language-server" "--stdio")))
-      (add-to-list 'eglot-server-programs
-      	       '(html-mode . ("~/.local/share/pnpm/vscode-html-language-server" "--stdio")))
-      (add-to-list 'eglot-server-programs
-           	       '(css-mode . ("~/.local/share/pnpm/vscode-css-language-server" "--stdio")))
-      (add-to-list 'eglot-server-programs
-                   '(lua-ts-mode . (
-       "~/.local/share/nvim/mason/bin/lua-language-server"))) ;; Adds our lua lsp server to eglot's server list
        )
 
 #+end_src
+
+** Mason
+#+begin_src emacs-lisp
+        (use-package mason
+        :ensure t
+        :config 
+    	(mason-setup))
+
+#+end_src
+
+#+RESULTS:
+: t
 
 ** Sideline-flymake
 
@@ -523,70 +417,17 @@ To use it write out the full keyword (or use autocompletion) and press Tab.
 
 ** TreeSitter
 #+begin_src emacs-lisp
-  (setq treesit-language-source-alist
-    	  '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-    		(cmake "https://github.com/uyha/tree-sitter-cmake")
-    		(c "https://github.com/tree-sitter/tree-sitter-c")
-    		(cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-    		(css "https://github.com/tree-sitter/tree-sitter-css")
-    		(html "https://github.com/tree-sitter/tree-sitter-html")
-    		(javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-    		(json "https://github.com/tree-sitter/tree-sitter-json")
-  		(python "https://github.com/tree-sitter/tree-sitter-python")
-  		(tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-    		(typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-    		(ruby "https://github.com/tree-sitter/tree-sitter-ruby")))
-
-
-
-  (defun start/install-treesit-grammars()
-    (interactive)
-    (dolist (grammar treesit-language-source-alist)
-      (let ((lang (car grammar)))
-    	  (unless (treesit-language-available-p lang)
-  		(treesit-install-language-grammar lang)))))
-
-  ;; Call the function to install missing grammars
-  (start/install-treesit-grammars)
-
-  ;; Adding aditional mode remappings not covered by default
-  (setq major-mode-remap-alist
-    	  '((yaml-mode . yaml-ts-mode)
-    		(sh-mode . bash-ts-mode)
-    		(c-mode . c-ts-mode)
-    		(c++-mode . c++-ts-mode)
-    		(css-mode . css-ts-mode)
-    		(mhtml-mode . html-ts-mode)
-    		(javascript-mode . js-ts-mode)
-    		(js-mode . json-ts-mode)
-    		(typescript-mode . typescript-ts-mode)
-    		(ruby-mode . ruby-ts-mode)))
-
-  ;; Or if there is no built in mode
-  (use-package cmake-ts-mode :ensure nil :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
-  (use-package go-ts-mode :ensure nil :mode "\\.go\\'")
-  (use-package go-mod-ts-mode :ensure nil :mode "\\.mod\\'")
-  (use-package rust-ts-mode :ensure nil :mode "\\.rs\\'")
-  (use-package tsx-ts-mode :ensure nil :mode "\\.tsx\\'")
-
+        (use-package treesit-auto
+          :ensure t
+          :custom
+    	  (treesit-auto-install 'prompt)
+          :config
+          (global-treesit-auto-mode))
 
 #+end_src
 
 ** Language modes
-Here's an example of how to use a language mode
-*** Lua mode
-Example, how to setup a language mode (if you don't want it, feel free to delete it).
-Use SPC-tab to uncomment the lines.
-#+begin_src emacs-lisp
-   (use-package lua-ts-mode
-     :mode "\\.lua\\'") ;; Only start in a lua file
-#+end_src
-
 *** Org Mode
-Org mode is one of the things that emacs is loved for.
-Once you've used it for a bit, you'll understand why people love it. Even reading about it can be inspiring!
-For example, this document is effectively the source code and descriptions bound into the one document,
-much like the literate programming ideas that Donald Knuth made famous.
 #+begin_src emacs-lisp
 
     (use-package org
@@ -595,21 +436,14 @@ much like the literate programming ideas that Donald Knuth made famous.
       (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
 
       :hook
-      (org-mode . org-indent-mode) ;; Indent text
-    ;;   The following prevents <> from auto-pairing when electric-pair-mode is on.
-    ;;  Otherwise, org-tempo is broken when you try to <s TAB...
+      (org-mode . org-indent-mode) 
      (org-mode . (lambda ()
                     (setq-local electric-pair-inhibit-predicate
-                                `(lambda (c)
+                                '(lambda (c)
                                    (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
       )
 
 #+end_src
-
-
-#+RESULTS:
-| #[nil ((setq-local electric-pair-inhibit-predicate `(lambda (c) (if (char-equal c 60) t (,electric-pair-inhibit-predicate c))))) nil] | org-tempo-setup | org-superstar-mode | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | toc-org-mode | org-indent-mode |
-
 
 **** Table of Contents
 #+begin_src emacs-lisp
@@ -636,13 +470,10 @@ Org-tempo allows for '<s' followed by TAB to expand to a begin_src tag.
 #+end_src
 
 ** Terminal
-*** Eat
-Eat(Emulate A Terminal) is a terminal emulator within Emacs.
-It's more portable and less overhead for users over like vterm or eshell.
-We setup eat with eshell, if you want to use bash, zsh etc., check out their git [[https://codeberg.org/akib/emacs-eat][repository]] how to do it.
+*** Vterm 
 #+begin_src emacs-lisp
-    (use-package eat
-      :hook ('eshell-load-hook #'eat-eshell-mode))
+        (use-package vterm
+    	  :ensure t)
 #+end_src
 
 * Multi File Example
@@ -673,6 +504,21 @@ And now we can use everything from that file.
 
 * Other Packages
 All the package setups that don't need much tweaking.
+** PDF tools
+
+#+begin_src emacs-lisp
+(use-package pdf-tools
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :config
+  (pdf-tools-install)
+
+  (add-hook 'pdf-view-mode-hook
+            (lambda ()
+              (display-line-numbers-mode -1))))
+
+#+end_src
+
+
 ** Nerd Icons
 For icons and more helpful UI.
 This is an icon set that can be used with dired, ibuffer and other Emacs programs.

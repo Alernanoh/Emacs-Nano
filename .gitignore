@@ -1,5 +1,8 @@
 *.tmp
 *.log
+*.eld
+*.elc
+*.el#
 snippets/
 transient/
 tree-sitter/
@@ -10,3 +13,6 @@ eln-cache/
 elpa/
 *.*~
 auto-save-list/
+custom-vars.el
+mason
+tramp

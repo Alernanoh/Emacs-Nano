@@ -21,8 +21,8 @@
 (use-package evil
   :init ;; Execute code Before a package is loaded
   (evil-mode)
-  :config ;; Execute code After a package is loaded
-  (evil-set-initial-state 'eat-mode 'insert) ;; Set initial state in eat terminal to insert mode
+  :config 
+  (evil-set-initial-state 'vterm-mode 'insert) 
   :custom ;; Customization of package custom variables
   (evil-want-keybinding nil)    ;; Disable evil bindings in other modes (It's not consistent and not good)
   (evil-want-C-u-scroll t)      ;; Set C-u to scroll up
@@ -41,8 +41,6 @@
 (use-package evil-collection
   :after evil
   :config
-  ;; Setting where to use evil-collection
-  (setq evil-collection-mode-list '(dired ibuffer magit corfu vertico consult))
   (evil-collection-init))
 
 (use-package general
@@ -111,7 +109,7 @@
 
   (start/leader-keys
     "s" '(:ignore t :wk "Show")
-    "s e" '(eat :wk "Eat terminal"))
+    "s e" '(vterm :wk "Vterm"))
 
 
   ;;Org mode bindings
@@ -151,51 +149,6 @@
     "t" '(:ignore t :wk "Toggle")
     "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
     "t l" '(display-line-numbers-mode :wk "Toggle line numbers")))
-
-;; (general-unbind
-;;   :states 'insert
-;;   :keymaps 'org-mode-map 
-;;   "<backtab>"
-;;   "S-TAB"
-;; )
-
-(general-define-key
-:states 'insert
-:keymaps 'org-mode-map
-"S-TAB" #'ignore
-"<backtab>" #'ignore
-"S-<tab>" #'ignore
-)
-
-(general-define-key
- :states 'normal
- :keymaps 'org-mode-map
- "TAB" #'org-cycle
- "RET" #'org-open-at-point
- "-" #'org-cycle-list-bullet
-
-;; TODO
- "t"   #'org-todo
- 
- ;;Checkboxes
- "SPC c" #'org-toggle-checkbox
-
- ;;Move list items
- "gj" #'org-move-item-down
- "gk" #'org-move-item-up
-
- ;; Promote/Demote
- ">"   #'org-metaright
- "<"   #'org-metaleft
-
- ;; Move subtree
- "J"   #'org-move-subtree-down
- "K"   #'org-move-subtree-up
-
- ;;Tables
- "|" #'org-table-create-or-convert-from-region
- "gR" #'org-table-recalculate
-)
 
 (use-package emacs
   :custom
@@ -255,10 +208,6 @@
                     :font "mononoki nerd font" ;; Set your favorite type of font or download JetBrains Mono
                     :height 120
                     :weight 'medium)
-;; This sets the default font on all graphical frames created after restarting Emacs.
-;; Does the same thing as 'set-face-attribute default' above, but emacsclient fonts
-;; are not right unless I also add this method of setting the default font.
-
 ;;(add-to-list 'default-frame-alist '(font . "JetBrains Mono")) ;; Set your favorite font
 (setq-default line-spacing 0.12)
 
@@ -290,7 +239,7 @@
 (use-package eglot
   :ensure nil 
   :hook 
-  ( prog-mode . eglot-ensure)
+  (prog-mode . eglot-ensure)
   (html-mode . eglot-ensure)
   (css-mode . eglot-ensure)
   (web-mode . eglot-ensure)
@@ -305,17 +254,22 @@
   (eglot-connect-timeout nil)
   (eglot-send-changes-idle-time 0.5)
   ;; Manual lsp servers
-  :config
-  (add-to-list 'eglot-server-programs
-  	       '(web-mode . ("~/.local/share/pnpm/typescript-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs
-  	       '(html-mode . ("~/.local/share/pnpm/vscode-html-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs
-       	       '(css-mode . ("~/.local/share/pnpm/vscode-css-language-server" "--stdio")))
-  (add-to-list 'eglot-server-programs
-               '(lua-ts-mode . (
-   "~/.local/share/nvim/mason/bin/lua-language-server"))) ;; Adds our lua lsp server to eglot's server list
+  ;; :config
+  ;; (add-to-list 'eglot-server-programs
+  ;; 	       '(web-mode . ("~/.local/share/pnpm/typescript-language-server" "--stdio")))
+  ;; (add-to-list 'eglot-server-programs
+  ;; 	       '(html-mode . ("~/.local/share/pnpm/vscode-html-language-server" "--stdio")))
+  ;; (add-to-list 'eglot-server-programs
+  ;;      	       '(css-mode . ("~/.local/share/pnpm/vscode-css-language-server" "--stdio")))
+  ;; (add-to-list 'eglot-server-programs
+  ;;              '(lua-ts-mode . (
+  ;;  "~/.local/share/nvim/mason/bin/lua-language-server"))) ;; Adds our lua lsp server to eglot's server list
    )
+
+(use-package mason
+:ensure t
+:config 
+(mason-setup))
 
 (use-package sideline-flymake
   :hook (flymake-mode . sideline-mode)
@@ -348,54 +302,12 @@
   :hook (prog-mode . yas-minor-mode))
 			 (package-initialize)
 
-(setq treesit-language-source-alist
-  	  '((bash "https://github.com/tree-sitter/tree-sitter-bash")
-  		(cmake "https://github.com/uyha/tree-sitter-cmake")
-  		(c "https://github.com/tree-sitter/tree-sitter-c")
-  		(cpp "https://github.com/tree-sitter/tree-sitter-cpp")
-  		(css "https://github.com/tree-sitter/tree-sitter-css")
-  		(html "https://github.com/tree-sitter/tree-sitter-html")
-  		(javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-  		(json "https://github.com/tree-sitter/tree-sitter-json")
-		(python "https://github.com/tree-sitter/tree-sitter-python")
-		(tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-  		(typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-  		(ruby "https://github.com/tree-sitter/tree-sitter-ruby")))
-
-
-
-(defun start/install-treesit-grammars()
-  (interactive)
-  (dolist (grammar treesit-language-source-alist)
-    (let ((lang (car grammar)))
-  	  (unless (treesit-language-available-p lang)
-		(treesit-install-language-grammar lang)))))
-
-;; Call the function to install missing grammars
-(start/install-treesit-grammars)
-
-;; Adding aditional mode remappings not covered by default
-(setq major-mode-remap-alist
-  	  '((yaml-mode . yaml-ts-mode)
-  		(sh-mode . bash-ts-mode)
-  		(c-mode . c-ts-mode)
-  		(c++-mode . c++-ts-mode)
-  		(css-mode . css-ts-mode)
-  		(mhtml-mode . html-ts-mode)
-  		(javascript-mode . js-ts-mode)
-  		(js-mode . json-ts-mode)
-  		(typescript-mode . typescript-ts-mode)
-  		(ruby-mode . ruby-ts-mode)))
-
-;; Or if there is no built in mode
-(use-package cmake-ts-mode :ensure nil :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
-(use-package go-ts-mode :ensure nil :mode "\\.go\\'")
-(use-package go-mod-ts-mode :ensure nil :mode "\\.mod\\'")
-(use-package rust-ts-mode :ensure nil :mode "\\.rs\\'")
-(use-package tsx-ts-mode :ensure nil :mode "\\.tsx\\'")
-
-(use-package lua-ts-mode
-  :mode "\\.lua\\'") ;; Only start in a lua file
+(use-package treesit-auto
+  :ensure t
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (global-treesit-auto-mode))
 
 (use-package org
   :ensure nil
@@ -403,12 +315,10 @@
   (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
 
   :hook
-  (org-mode . org-indent-mode) ;; Indent text
-;;   The following prevents <> from auto-pairing when electric-pair-mode is on.
-;;  Otherwise, org-tempo is broken when you try to <s TAB...
+  (org-mode . org-indent-mode) 
  (org-mode . (lambda ()
                 (setq-local electric-pair-inhibit-predicate
-                            `(lambda (c)
+                            '(lambda (c)
                                (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
   )
 
@@ -424,8 +334,8 @@
   :ensure nil
   :after org)
 
-(use-package eat
-  :hook ('eshell-load-hook #'eat-eshell-mode))
+(use-package vterm
+  :ensure t)
 
 ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (setenv "PATH" (concat (getenv "PATH") ":" (expand-file-name "~/.local/share/pnpm/")))
@@ -434,6 +344,15 @@
 ;; (require 'start-multiFileExample)
 
 ;; (start/hello)
+
+(use-package pdf-tools
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :config
+  (pdf-tools-install)
+
+  (add-hook 'pdf-view-mode-hook
+            (lambda ()
+              (display-line-numbers-mode -1))))
 
 (use-package nerd-icons
   :if (display-graphic-p))
