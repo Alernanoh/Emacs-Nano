@@ -16,3 +16,4 @@ auto-save-list/
 custom-vars.el
 mason
 tramp
+/.agent-shell/

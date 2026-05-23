@@ -19,6 +19,7 @@
   - [[#fonts][Fonts]]
   - [[#modeline][Modeline]]
 - [[#development][Development]]
+  - [[#agent-shell][Agent Shell]]
   - [[#projectile][Projectile]]
   - [[#eglot][Eglot]]
   - [[#mason][Mason]]
@@ -326,6 +327,15 @@ Replace the default modeline with a prettier more useful.
 #+end_src
 
 * Development
+** Agent Shell
+#+begin_src emacs-lisp
+        (use-package agent-shell
+          :ensure t
+          :ensure-system-package
+    	  ((claude-agent-acp . "npm install -g @agentclientprotocol/claude-agent-acp"))
+    )
+#+end_src
+
 ** Projectile
 Project interaction library for Emacs.
 #+begin_src emacs-lisp
@@ -436,14 +446,17 @@ To use it write out the full keyword (or use autocompletion) and press Tab.
       (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
 
       :hook
-      (org-mode . org-indent-mode) 
+      (org-mode . org-indent-mode) ;; Indent text
+    ;;   The following prevents <> from auto-pairing when electric-pair-mode is on.
+    ;;  Otherwise, org-tempo is broken when you try to <s TAB...
      (org-mode . (lambda ()
                     (setq-local electric-pair-inhibit-predicate
-                                '(lambda (c)
+                                `(lambda (c)
                                    (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
       )
-
 #+end_src
+
+#+RESULTS:
 
 **** Table of Contents
 #+begin_src emacs-lisp

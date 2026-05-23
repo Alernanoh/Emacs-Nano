@@ -226,6 +226,12 @@
   (doom-modeline-persp-name t)  ;; Adds perspective name to modeline
   (doom-modeline-persp-icon t)) ;; Adds folder icon next to persp name
 
+(use-package agent-shell
+      :ensure t
+      :ensure-system-package
+	  ((claude-agent-acp . "npm install -g @agentclientprotocol/claude-agent-acp"))
+)
+
 (use-package projectile
   :defer 1
   :init
@@ -240,12 +246,6 @@
   :ensure nil 
   :hook 
   (prog-mode . eglot-ensure)
-  (html-mode . eglot-ensure)
-  (css-mode . eglot-ensure)
-  (web-mode . eglot-ensure)
-  (js-ts-mode . eglot-ensure)
-  (typescript-ts-mode . eglot-ensure)
-  (tsx-ts-mode . eglot-ensure)
   :custom
   (eglot-events-buffer-size 0) ;; No event buffers (LSP server logs)
   (eglot-autoshutdown t);; Shutdown unused servers.
@@ -253,17 +253,6 @@
   (eglot-sync-connect nil)
   (eglot-connect-timeout nil)
   (eglot-send-changes-idle-time 0.5)
-  ;; Manual lsp servers
-  ;; :config
-  ;; (add-to-list 'eglot-server-programs
-  ;; 	       '(web-mode . ("~/.local/share/pnpm/typescript-language-server" "--stdio")))
-  ;; (add-to-list 'eglot-server-programs
-  ;; 	       '(html-mode . ("~/.local/share/pnpm/vscode-html-language-server" "--stdio")))
-  ;; (add-to-list 'eglot-server-programs
-  ;;      	       '(css-mode . ("~/.local/share/pnpm/vscode-css-language-server" "--stdio")))
-  ;; (add-to-list 'eglot-server-programs
-  ;;              '(lua-ts-mode . (
-  ;;  "~/.local/share/nvim/mason/bin/lua-language-server"))) ;; Adds our lua lsp server to eglot's server list
    )
 
 (use-package mason
@@ -312,15 +301,13 @@
 (use-package org
   :ensure nil
   :custom
-  (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
-
+  (org-edit-src-content-indentation 4)
   :hook
-  (org-mode . org-indent-mode) 
- (org-mode . (lambda ()
+  (org-mode . org-indent-mode)
+  (org-mode . (lambda ()
                 (setq-local electric-pair-inhibit-predicate
-                            '(lambda (c)
-                               (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
-  )
+                            `(lambda (c)
+                               (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c)))))))
 
 (use-package toc-org
   :commands toc-org-enable
