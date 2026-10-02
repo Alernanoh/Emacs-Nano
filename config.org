@@ -1,3 +1,4 @@
+# -*- lexical-binding: t; -*-
 #+Title: My Emacs Config
 #+Author: Nano
 #+Description: Nano's emacs config 
@@ -53,7 +54,6 @@
 ** Startup Performance
 Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
 #+begin_src emacs-lisp
-    ;; The default is 800 kilobytes. Measured in bytes.
     (setq gc-cons-threshold (* 2 1000 1000))
 #+end_src
 
@@ -61,10 +61,8 @@ Make startup faster by reducing the frequency of garbage collection. This will b
 To fix this, you need to find this file (C-x C-f), fix the error and press C-c C-v t to tangle it manually.
 #+begin_src emacs-lisp
     (defun start/org-babel-tangle-config ()
-      ;; "Automatically tangle our Emacs.org config file when we save it. Credit to Emacs From Scratch for this one!"
       (when (string-equal (file-name-directory (buffer-file-name))
                           (expand-file-name user-emacs-directory))
-        ;; Dynamic scoping to the rescue
         (let ((org-confirm-babel-evaluate nil))
           (org-babel-tangle)))
 
@@ -108,122 +106,126 @@ To fix this, you need to find this file (C-x C-f), fix the error and press C-c C
       :after evil
       :config
       (evil-collection-init))
-
-
 #+end_src
 
 ** General Keybindings
 #+begin_src emacs-lisp
 
-        (use-package general
-          :config
-          (general-evil-setup)
-          ;; Set up 'SPC' as the leader key
-          (general-create-definer start/leader-keys
-            :states '(normal insert visual motion emacs)
-            :keymaps 'override
-            :prefix "SPC"
-            :global-prefix "C-SPC")
+    (use-package general
+      :config
+      (general-evil-setup)
+      ;; Set up 'SPC' as the leader key
+      (general-create-definer start/leader-keys
+        :states '(normal insert visual motion emacs)
+        :keymaps 'override
+        :prefix "SPC"
+        :global-prefix "C-SPC")
 
-          (start/leader-keys
-            "." '(find-file :wk "Find file")
-            "TAB" '(comment-line :wk "Comment lines")
-            "p" '(projectile-command-map :wk "Projectile command map"))
+      (start/leader-keys
+        "." '(find-file :wk "Find file")
+        "TAB" '(comment-line :wk "Comment lines")
+        "p" '(projectile-command-map :wk "Projectile command map"))
 
-          (start/leader-keys
-            "f" '(:ignore t :wk "Find")
-            "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
-            "f r" '(consult-recent-file :wk "Recent files")
-            "f f" '(consult-fd :wk "Fd search for files")
-            "f g" '(consult-ripgrep :wk "Ripgrep search in files")
-            "f l" '(consult-line :wk "Find line")
-            "f i" '(consult-imenu :wk "Imenu buffer locations")
-            "f s" '(save-buffer :wk "Save current buffer"))
+      (start/leader-keys
+        "f" '(:ignore t :wk "Find")
+        "f c" '((lambda () (interactive) (find-file "~/.config/emacs/config.org")) :wk "Edit emacs config")
+        "f r" '(consult-recent-file :wk "Recent files")
+        "f f" '(consult-fd :wk "Fd search for files")
+        "f g" '(consult-ripgrep :wk "Ripgrep search in files")
+        "f l" '(consult-line :wk "Find line")
+        "f i" '(consult-imenu :wk "Imenu buffer locations")
+        "f s" '(save-buffer :wk "Save current buffer"))
 
-          (start/leader-keys
-            "b" '(:ignore t :wk "Buffer Bookmarks")
-            "b b" '(consult-buffer :wk "Switch buffer")
-            "b k" '(kill-current-buffer :wk "Kill this buffer")
-            "b i" '(ibuffer :wk "Ibuffer")
-            "b n" '(next-buffer :wk "Next buffer")
-            "b p" '(previous-buffer :wk "Previous buffer")
-            "b r" '(revert-buffer :wk "Reload buffer")
-            "b j" '(consult-bookmark :wk "Bookmark jump"))
+      (start/leader-keys
+        "b" '(:ignore t :wk "Buffer Bookmarks")
+        "b b" '(consult-buffer :wk "Switch buffer")
+        "b k" '(kill-current-buffer :wk "Kill this buffer")
+        "b i" '(ibuffer :wk "Ibuffer")
+        "b n" '(next-buffer :wk "Next buffer")
+        "b p" '(previous-buffer :wk "Previous buffer")
+        "b r" '(revert-buffer :wk "Reload buffer")
+        "b j" '(consult-bookmark :wk "Bookmark jump"))
 
-          (start/leader-keys
-            "d" '(:ignore t :wk "Dired")
-            "d v" '(dired :wk "Open dired")
-            "d j" '(dired-jump :wk "Dired jump to current"))
+      (start/leader-keys
+        "d" '(:ignore t :wk "Dired")
+        "d v" '(dired :wk "Open dired")
+        "d j" '(dired-jump :wk "Dired jump to current"))
 
-          (start/leader-keys
-            "e" '(:ignore t :wk "Eglot")
-            "e e" '(eglot-reconnect :wk "Eglot Reconnect")
-            "e f" '(eglot-format-buffer :wk "Eglot Format")
-            "e l" '(consult-flymake :wk "Consult Flymake")
-            "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
-            "e r" '(eglot-rename :wk "Rename thing under cursor")
-            "e a" '(eglot-code-actions :wk "Code actions")
-    		"e d" '(eglot-find-typeDefinition :wk "Go to definition")
-    		"e c" '(eglot-find-declaration :wk "Go to declaration")
-    		"e i" '(eglot-find-implementation :wk "Find implementation")
-    		"e q" '(eglot-code-action-quickfix :wk "Quickfix"))
+      (start/leader-keys
+        "e" '(:ignore t :wk "Eglot")
+        "e e" '(eglot-reconnect :wk "Eglot Reconnect")
+        "e f" '(eglot-format-buffer :wk "Eglot Format")
+        "e l" '(consult-flymake :wk "Consult Flymake")
+        "e b" '(eval-buffer :wk "Evaluate elisp in buffer")
+        "e r" '(eglot-rename :wk "Rename thing under cursor")
+        "e a" '(eglot-code-actions :wk "Code actions")
+    	"e d" '(eglot-find-typeDefinition :wk "Go to definition")
+    	"e c" '(eglot-find-declaration :wk "Go to declaration")
+    	"e i" '(eglot-find-implementation :wk "Find implementation")
+    	"e q" '(eglot-code-action-quickfix :wk "Quickfix"))
 
-          (start/leader-keys
-            "g" '(:ignore t :wk "Git")
-            "g g" '(magit-status :wk "Magit status"))
+      (start/leader-keys
+        "g" '(:ignore t :wk "Git")
+        "g g" '(magit-status :wk "Magit status"))
 
-          (start/leader-keys
-            "h" '(:ignore t :wk "Help")
-            "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
-            "h r" '((lambda () (interactive)
-                      (load-file "~/.config/emacs/init.el"))
-                    :wk "Reload Emacs config"))
+      (start/leader-keys
+        "h" '(:ignore t :wk "Help")
+        "h q" '(save-buffers-kill-emacs :wk "Quit Emacs and Daemon")
+        "h r" '((lambda () (interactive)
+                  (load-file "~/.config/emacs/init.el"))
+                :wk "Reload Emacs config"))
 
-          (start/leader-keys
-            "s" '(:ignore t :wk "Show")
-            "s e" '(vterm :wk "Vterm"))
+      (start/leader-keys
+        "s" '(:ignore t :wk "Show")
+        "s e" '(vterm :wk "Vterm"))
 
 
-          ;;Org mode bindings
-          (start/leader-keys
-            "o" '(:ignore t :which-key "org")
-            ;; Basic actions
-            "oa" '(org-agenda :which-key "org-agenda")
-            "oc" '(org-capture :which-key "capture")
-            "od" '(org-deadline :which-key "deadline")
-            "oi" '(org-insert-heading-respect-content :which-key "insert heading")
-            "oI" '(org-insert-subheading :which-key "insert subheading")
-            "oo" '(org-schedule :which-key "schedule")
-            "ot" '(org-todo :which-key "todo")
-            "oT" '(org-set-tags-command :which-key "set tags")
-        	"og" '(consult-outline :wk "go to headings")
-            ;;Files
-        	"of" '(org-open-at-point :which-key "open link/file")
-        	"or" '(org-refile :which-key "refile")
-        	"os" '(org-save-all-org-buffers :which-key "save all org")
-            ;;Structure editing
-        	"oh" '(org-metaleft :wk "promote")
-        	"ol" '(org-metaright :wk "demote")
+      ;;Org mode bindings
+      (start/leader-keys
+        "o" '(:ignore t :which-key "org")
+        ;; Basic actions
+        "oa" '(org-agenda :which-key "org-agenda")
+        "oc" '(org-capture :which-key "capture")
+        "od" '(org-deadline :which-key "deadline")
+        "oi" '(org-insert-heading-respect-content :which-key "insert heading")
+        "oI" '(org-insert-subheading :which-key "insert subheading")
+        "oo" '(org-schedule :which-key "schedule")
+        "ot" '(org-todo :which-key "todo")
+        "oT" '(org-set-tags-command :which-key "set tags")
+    	"og" '(consult-outline :wk "go to headings")
+        ;;Files
+    	"of" '(org-open-at-point :which-key "open link/file")
+    	"or" '(org-refile :which-key "refile")
+    	"os" '(org-save-all-org-buffers :which-key "save all org")
+        ;;Structure editing
+    	"oh" '(org-metaleft :wk "promote")
+    	"ol" '(org-metaright :wk "demote")
 
-            ;;Clocking
-            "ox" '(:ignore t :which-key "clock")
-            "oxi" '(org-clock-in :which-key "clock in")
-            "oxo" '(org-clock-out :which-key "clock out")
-            "oxr" '(org-clock-report :which-key "clock report")
-            ;; Links 
-        	"on" '(:ignore t :wk "Links")
-            "onl" '(org-insert-link :which-key "insert link")
-            "onu" '(org-store-link :which-key "store link")
-            ;;Export
-            "oe" '(org-export-dispatch :which-key "export"))
+        ;;Clocking
+        "ox" '(:ignore t :which-key "clock")
+        "oxi" '(org-clock-in :which-key "clock in")
+        "oxo" '(org-clock-out :which-key "clock out")
+        "oxr" '(org-clock-report :which-key "clock report")
+        ;; Links 
+    	"on" '(:ignore t :wk "Links")
+        "onl" '(org-insert-link :which-key "insert link")
+        "onu" '(org-store-link :which-key "store link")
+        ;;Export
+        "oe" '(org-export-dispatch :which-key "export")
+    	;; Roam
+        "nf" '(org-roam-node-find :wk "roam find node")
+        "ni" '(org-roam-node-insert :wk "roam insert node"))
 
-          (start/leader-keys
-            "t" '(:ignore t :wk "Toggle")
-            "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
-            "t l" '(display-line-numbers-mode :wk "Toggle line numbers")))
+      (start/leader-keys
+        "t" '(:ignore t :wk "Toggle")
+        "t t" '(visual-line-mode :wk "Toggle truncated lines (wrap)")
+        "t l" '(display-line-numbers-mode :wk "Toggle line numbers")))
 
 
 #+end_src
+
+#+RESULTS:
+: t
 
 ** Good Defaults
 #+begin_src emacs-lisp
@@ -376,9 +378,6 @@ Project interaction library for Emacs.
 
 #+end_src
 
-#+RESULTS:
-: t
-
 ** Sideline-flymake
 
 #+begin_src emacs-lisp
@@ -456,7 +455,11 @@ To use it write out the full keyword (or use autocompletion) and press Tab.
       )
 #+end_src
 
-#+RESULTS:
+*** Org Roam
+#+begin_src emacs-lisp
+    (setq org-roam-directory (file-truename "~/Documents/orgfiles/org-roam/"))
+#+end_src
+
 
 **** Table of Contents
 #+begin_src emacs-lisp
@@ -581,7 +584,6 @@ Notes:
       :bind
       (:map corfu-map
     		("TAB" . corfu-next)
-    		("S-TAB" . corfu-previous)
     		("<backtab>" . corfu-previous)
 
     		("RET" . corfu-insert))
@@ -608,6 +610,8 @@ Notes:
       :after corfu
       :init (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 #+end_src
+
+#+RESULTS:
 
 
 ** Cape
