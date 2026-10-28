@@ -4,9 +4,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-src-content-indentation 4 nil nil "Customized with use-package org")
  '(package-selected-packages
    '(agent-shell annalist cape catppuccin-theme corfu diff-hl diminish
-				 doom-modeline embark-consult emmet-mode magit
+				 doom-modeline embark embark-consult emmet-mode magit
 				 marginalia mason meow meow-tree-sitter
 				 nerd-icons-completion nerd-icons-corfu
 				 nerd-icons-dired nerd-icons-ibuffer orderless

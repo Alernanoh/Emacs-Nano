@@ -12,8 +12,11 @@ history
 eln-cache/
 elpa/
 *.*~
+tramp
+.org-*
 auto-save-list/
 custom-vars.el
 mason
 tramp
 /.agent-shell/
+.gitignore

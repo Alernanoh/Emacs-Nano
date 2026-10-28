@@ -187,29 +187,18 @@ To fix this, you need to find this file (C-x C-f), fix the error and press C-c C
         "oa" '(org-agenda :which-key "org-agenda")
         "oc" '(org-capture :which-key "capture")
         "od" '(org-deadline :which-key "deadline")
-        "oi" '(org-insert-heading-respect-content :which-key "insert heading")
-        "oI" '(org-insert-subheading :which-key "insert subheading")
         "oo" '(org-schedule :which-key "schedule")
         "ot" '(org-todo :which-key "todo")
         "oT" '(org-set-tags-command :which-key "set tags")
-    	"og" '(consult-outline :wk "go to headings")
         ;;Files
     	"of" '(org-open-at-point :which-key "open link/file")
     	"or" '(org-refile :which-key "refile")
     	"os" '(org-save-all-org-buffers :which-key "save all org")
-        ;;Structure editing
-    	"oh" '(org-metaleft :wk "promote")
-    	"ol" '(org-metaright :wk "demote")
-
         ;;Clocking
         "ox" '(:ignore t :which-key "clock")
         "oxi" '(org-clock-in :which-key "clock in")
         "oxo" '(org-clock-out :which-key "clock out")
         "oxr" '(org-clock-report :which-key "clock report")
-        ;; Links 
-    	"on" '(:ignore t :wk "Links")
-        "onl" '(org-insert-link :which-key "insert link")
-        "onu" '(org-store-link :which-key "store link")
         ;;Export
         "oe" '(org-export-dispatch :which-key "export")
     	;; Roam
@@ -223,9 +212,6 @@ To fix this, you need to find this file (C-x C-f), fix the error and press C-c C
 
 
 #+end_src
-
-#+RESULTS:
-: t
 
 ** Good Defaults
 #+begin_src emacs-lisp
@@ -442,6 +428,7 @@ To use it write out the full keyword (or use autocompletion) and press Tab.
     (use-package org
       :ensure nil
       :custom
+      (org-directory "~/Documents/orgfiles/") ;; Set default org directory
       (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
 
       :hook
