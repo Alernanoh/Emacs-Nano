@@ -1,12 +1,9 @@
 ;;; -*- lexical-binding: t; -*-
-;; The default is 800 kilobytes. Measured in bytes.  
 (setq gc-cons-threshold (* 2 1000 1000))
 
 (defun start/org-babel-tangle-config ()
-  ;; "Automatically tangle our Emacs.org config file when we save it. Credit to Emacs From Scratch for this one!"
   (when (string-equal (file-name-directory (buffer-file-name))
                       (expand-file-name user-emacs-directory))
-    ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle)))
 
@@ -120,31 +117,23 @@
     "oa" '(org-agenda :which-key "org-agenda")
     "oc" '(org-capture :which-key "capture")
     "od" '(org-deadline :which-key "deadline")
-    "oi" '(org-insert-heading-respect-content :which-key "insert heading")
-    "oI" '(org-insert-subheading :which-key "insert subheading")
     "oo" '(org-schedule :which-key "schedule")
     "ot" '(org-todo :which-key "todo")
     "oT" '(org-set-tags-command :which-key "set tags")
-	"og" '(consult-outline :wk "go to headings")
     ;;Files
 	"of" '(org-open-at-point :which-key "open link/file")
 	"or" '(org-refile :which-key "refile")
 	"os" '(org-save-all-org-buffers :which-key "save all org")
-    ;;Structure editing
-	"oh" '(org-metaleft :wk "promote")
-	"ol" '(org-metaright :wk "demote")
-
     ;;Clocking
     "ox" '(:ignore t :which-key "clock")
     "oxi" '(org-clock-in :which-key "clock in")
     "oxo" '(org-clock-out :which-key "clock out")
     "oxr" '(org-clock-report :which-key "clock report")
-    ;; Links 
-	"on" '(:ignore t :wk "Links")
-    "onl" '(org-insert-link :which-key "insert link")
-    "onu" '(org-store-link :which-key "store link")
     ;;Export
-    "oe" '(org-export-dispatch :which-key "export"))
+    "oe" '(org-export-dispatch :which-key "export")
+	;; Roam
+    "nf" '(org-roam-node-find :wk "roam find node")
+    "ni" '(org-roam-node-insert :wk "roam insert node"))
 
   (start/leader-keys
     "t" '(:ignore t :wk "Toggle")
@@ -302,6 +291,7 @@
 (use-package org
   :ensure nil
   :custom
+  (org-directory "~/Documents/orgfiles/") ;; Set default org directory
   (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
 
   :hook
@@ -313,6 +303,8 @@
                             `(lambda (c)
                                (if (char-equal c ?<) t (,electric-pair-inhibit-predicate c))))))
   )
+
+(setq org-roam-directory (file-truename "~/Documents/orgfiles/org-roam/"))
 
 (use-package toc-org
   :commands toc-org-enable
@@ -369,33 +361,23 @@
   :bind
   (:map corfu-map
 		("TAB" . corfu-next)
-		("S-TAB" . corfu-previous)
+		("<backtab>" . corfu-previous)
+
 		("RET" . corfu-insert))
   ;; Optional customizations
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
-  (corfu-auto-prefix 2)          ;; Minimum length of prefix for auto completion.
+  (corfu-auto-prefix 1)          ;; Minimum length of prefix for auto completion.
   (corfu-auto-delay 0.2)
   (corfu-popupinfo-mode t)       ;; Enable popup information
-  (corfu-popupinfo-delay 0.3)    ;; Lower popupinfo delay to 0.5 seconds from 2 seconds
+  (corfu-popupinfo-delay 0.1)    ;; Lower popupinfo delay to 0.5 seconds from 2 seconds
   (corfu-separator ?\s)          ;; Orderless field separator, Use M-SPC to enter separator
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-scroll-margin 5)        ;; Use scroll margin
   (completion-ignore-case t)
-  ;; Enable indentation+completion using the TAB key.
-  ;; `completion-at-point' is often bound to M-TAB.
   (tab-always-indent 'complete)
   (corfu-preview-current nil) ;; Don't insert completion without confirmation
   (corfu-min-width 20)
   (corfu-max-width 100)
-  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
-  ;; be used globally (M-/).  See also the customization variable
-  ;; `global-corfu-modes' to exclude certain modes.
   :init
   (global-corfu-mode)
   (corfu-popupinfo-mode)) 
@@ -407,32 +389,29 @@
 
 (use-package cape
   :after corfu
+  :hook
+  (eglot-managed-moe . (lambda()
+						 (setq-local completion-at-point-functions
+									 (list (cape-capf-super
+											#'eglot-completion-at-point
+											#'cape-dabbrev
+											#'cape-keyword
+											#'cape-file)))))
   :init
-  ;; Add to the global default value of `completion-at-point-functions' which is
-  ;; used by `completion-at-point'.  The order of the functions matters, the
-  ;; first function returning a result wins.  Note that the list of buffer-local
-  ;; completion functions takes precedence over the global list.
-  ;; The functions that are added later will be the first in the list
 
   (add-to-list 'completion-at-point-functions #'cape-dabbrev) ;; Complete word from current buffers
   (add-to-list 'completion-at-point-functions #'cape-dict) ;; Dictionary completion
   (add-to-list 'completion-at-point-functions #'cape-file) ;; Path completion
   (add-to-list 'completion-at-point-functions #'cape-elisp-block) ;; Complete elisp in Org or Markdown mode
   (add-to-list 'completion-at-point-functions #'cape-keyword) ;; Keyword/Snipet completion
-
-  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev) ;; Complete abbreviation
-  ;;(add-to-list 'completion-at-point-functions #'cape-history) ;; Complete from Eshell, Comint or minibuffer history
-  ;;(add-to-list 'completion-at-point-functions #'cape-line) ;; Complete entire line from current buffer
-  ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol) ;; Complete Elisp symbol
-  ;;(add-to-list 'completion-at-point-functions #'cape-tex) ;; Complete Unicode char from TeX command, e.g. \hbar
-  ;;(add-to-list 'completion-at-point-functions #'cape-sgml) ;; Complete Unicode char from SGML entity, e.g., &alpha
-  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345) ;; Complete Unicode char using RFC 1345 mnemonics
   )
 
 (use-package orderless
   :custom
   (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  (completion-category-overrides '((file (styles basic partial-completion))
+								   (eglot (styles basic orderless))
+								   (eglot-capf (styles basic orderless)))))
 
 (use-package embark
   :ensure t

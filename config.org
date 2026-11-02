@@ -54,6 +54,7 @@
 ** Startup Performance
 Make startup faster by reducing the frequency of garbage collection. This will be set back when startup finishes.
 #+begin_src emacs-lisp
+    ;;; -*- lexical-binding: t; -*-
     (setq gc-cons-threshold (* 2 1000 1000))
 #+end_src
 
@@ -289,17 +290,6 @@ To fix this, you need to find this file (C-x C-f), fix the error and press C-c C
                         :weight 'medium)
     ;;(add-to-list 'default-frame-alist '(font . "JetBrains Mono")) ;; Set your favorite font
     (setq-default line-spacing 0.12)
-#+end_src
-
-*** Zooming In/Out
-You can use the bindings C-+ C-- for zooming in/out. You can also use CTRL plus the mouse wheel for zooming in/out.
-#+begin_src emacs-lisp
-    (use-package emacs
-      :bind
-      ("C-+" . text-scale-increase)
-      ("C--" . text-scale-decrease)
-      ("<C-wheel-up>" . text-scale-increase)
-      ("<C-wheel-down>" . text-scale-decrease))
 #+end_src
 
 ** Modeline
