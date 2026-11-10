@@ -201,13 +201,6 @@
 ;;(add-to-list 'default-frame-alist '(font . "JetBrains Mono")) ;; Set your favorite font
 (setq-default line-spacing 0.12)
 
-(use-package emacs
-  :bind
-  ("C-+" . text-scale-increase)
-  ("C--" . text-scale-decrease)
-  ("<C-wheel-up>" . text-scale-increase)
-  ("<C-wheel-down>" . text-scale-decrease))
-
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom
@@ -291,6 +284,7 @@
 (use-package org
   :ensure nil
   :custom
+  (org-default-notes-file "~/Documents/orgfiles/.notes")
   (org-directory "~/Documents/orgfiles/") ;; Set default org directory
   (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
 

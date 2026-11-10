@@ -418,6 +418,7 @@ To use it write out the full keyword (or use autocompletion) and press Tab.
     (use-package org
       :ensure nil
       :custom
+      (org-default-notes-file "~/Documents/orgfiles/.notes")
       (org-directory "~/Documents/orgfiles/") ;; Set default org directory
       (org-edit-src-content-indentation 4) ;; Set src block automatic indent to 4 instead of 2.
 
@@ -434,7 +435,12 @@ To use it write out the full keyword (or use autocompletion) and press Tab.
 
 *** Org Roam
 #+begin_src emacs-lisp
-    (setq org-roam-directory (file-truename "~/Documents/orgfiles/org-roam/"))
+    (use-package org-roam 
+      :ensure t
+      :config
+      (setq org-roam-directory (file-truename "~/Documents/orgfiles/org-roam/"))
+      )
+
 #+end_src
 
 
